@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eco Space — Econovo Club</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Lucide Icons (user-requested) -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════════
+   TOKENS — Econovo Brand
+   Primary: #0E2A24  Sage: #8FB8A6  Light: #F4F7F2
+══════════════════════════════════════════════════ */
+:root {
+  --primary:      #0E2A24;
+  --primary-mid:  #1a4035;
+  --primary-lite: #234d3d;
+  --sage:         #8FB8A6;
+  --sage-lite:    #b8d4c8;
+  --sage-dim:     rgba(143,184,166,.15);
+  --near-black:   #1F1F1F;
+  --bg:           #F4F7F2;
+  --bg-warm:      #F6F4F0;
+  --bg-card:      #ffffff;
+  --border:       #dde8e2;
+  --border-mid:   #c2d5cc;
+  --text:         #1F1F1F;
+  --text-mid:     #3d5048;
+  --text-muted:   #7a9089;
+  --danger:       #c0392b;
+  --danger-lite:  rgba(192,57,43,.1);
+  --warn:         #d08000;
+  --radius:       16px;
+  --radius-sm:    10px;
+  --radius-xs:    7px;
+  --shadow-sm:    0 1px 4px rgba(14,42,36,.07), 0 2px 12px rgba(14,42,36,.05);
+  --shadow-md:    0 4px 16px rgba(14,42,36,.10), 0 1px 4px rgba(14,42,36,.06);
+  --shadow-lg:    0 12px 40px rgba(14,42,36,.14), 0 2px 8px rgba(14,42,36,.06);
+  --font-head:    'Host Grotesk', sans-serif;
+  --font-body:    'IBM Plex Sans Arabic', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ══════════════════════════════════════════════════
+   PERMISSIONS OVERLAY  (shown first always)
+══════════════════════════════════════════════════ */
+#permissions-overlay {
+  position: fixed; inset: 0;
+  background: rgba(14,42,36,.6);
+  backdrop-filter: blur(12px);
+  z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#permissions-overlay.hidden { display: none; }
+
+.perm-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 48px 40px;
+  max-width: 460px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.perm-logo {
+  width: 72px; height: 72px; margin: 0 auto 24px;
+}
+.perm-logo img { width: 100%; height: 100%; object-fit: contain; }
+.perm-card h2 {
+  font-family: var(--font-head);
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--primary); margin-bottom: 10px;
+}
+.perm-card p {
+  color: var(--text-muted); font-size: .9rem; line-height: 1.7; margin-bottom: 32px;
+}
+.perm-items {
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; text-align: right;
+}
+.perm-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+}
+.perm-item-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sage-dim);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--primary); flex-shrink: 0;
+}
+.perm-item-text { flex: 1; }
+.perm-item-text strong { display: block; font-size: .85rem; font-weight: 600; color: var(--primary); }
+.perm-item-text span  { font-size: .78rem; color: var(--text-muted); }
+.perm-optional {
+  font-size: .72rem; color: var(--text-muted);
+  background: var(--bg-warm); border-radius: 6px; padding: 2px 8px;
+  margin-right: auto; white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 24px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: .9rem; font-weight: 600;
+  cursor: pointer; transition: all .18s; text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--primary); color: #fff; width: 100%;
+}
+.btn-primary:hover { background: var(--primary-mid); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14,42,36,.25); }
+.btn-sage {
+  background: var(--sage-dim); color: var(--primary);
+  border: 1px solid var(--sage);
+}
+.btn-sage:hover { background: rgba(143,184,166,.25); }
+.btn-ghost {
+  background: transparent; border: 1px solid var(--border-mid); color: var(--text-mid);
+}
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--sage-dim); }
+.btn-sm { padding: 8px 16px; font-size: .8rem; }
+.btn-danger { background: var(--danger-lite); color: var(--danger); border: 1px solid rgba(192,57,43,.2); }
+.btn-danger:hover { background: rgba(192,57,43,.18); }
+
+/* ══════════════════════════════════════════════════
+   LANDING SCREEN
+══════════════════════════════════════════════════ */
+#landing {
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── NAV ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 64px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 10;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-brand img { height: 36px; width: auto; }
+.nav-brand-text {
+  font-family: var(--font-head); font-weight: 700;
+  font-size: 1rem; color: var(--primary);
+  line-height: 1.1;
+}
+.nav-brand-sub { font-size: .7rem; color: var(--text-muted); font-weight: 400; }
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(14,42,36,.07); border: 1px solid var(--border-mid);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: .74rem; color: var(--text-mid); font-weight: 500;
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); animation: pulse-dot 2s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+/* ── HERO ── */
+.hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 80px 24px 60px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse at center, rgba(143,184,166,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--sage-dim); border: 1px solid var(--sage);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: .75rem; color: var(--primary-lite); font-weight: 600;
+  margin-bottom: 24px; letter-spacing: .4px;
+}
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 800; line-height: 1.1;
+  color: var(--primary);
+  letter-spacing: -1.5px;
+  margin-bottom: 18px;
+  max-width: 700px;
+}
+.hero h1 .sage-word { color: var(--sage); }
+
+.hero-sub {
+  font-size: 1rem; color: var(--text-muted); line-height: 1.75;
+  max-width: 480px; margin-bottom: 48px;
+}
+
+.hero-actions {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+}
+.hero-actions .btn { min-width: 180px; padding: 14px 28px; font-size: .95rem; }
+
+/* ── FEATURE STRIP ── */
+.features-strip {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 8px; padding: 24px 24px 60px;
+}
+.feat-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 7px 14px;
+  font-size: .78rem; color: var(--text-mid); font-weight: 500;
+}
+.feat-chip svg { color: var(--sage); }
+
+/* ══════════════════════════════════════════════════
+   MODAL OVERLAY
+══════════════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(14,42,36,.4);
+  backdrop-filter: blur(8px);
+  z-index: 100; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%; max-width: 440px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  animation: modal-in .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes modal-in { from{opacity:0;transform:translateY(20px) scale(.97)} to{opacity:1;transform:none} }
+
+.modal-close {
+  position: absolute; top: 16px; left: 16px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text-muted); width: 32px; height: 32px;
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.modal-close:hover { border-color: var(--primary); color: var(--primary); }
+
+.modal-header { margin-bottom: 28px; }
+.modal-eyebrow {
+  font-size: .72rem; font-weight: 600; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--sage); margin-bottom: 8px;
+}
+.modal h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+.modal p.sub { font-size: .84rem; color: var(--text-muted); margin-top: 4px; }
+
+/* form fields */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: .75rem; font-weight: 600;
+  color: var(--text-mid); margin-bottom: 7px; letter-spacing: .3px;
+}
+.field input, .field select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(143,184,166,.2);
+}
+.field input::placeholder { color: var(--text-muted); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* room link preview */
+.link-preview {
+  margin-top: 18px;
+  background: var(--bg);
+  border: 1.5px solid var(--sage);
+  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.link-preview code { font-family: monospace; font-size: .78rem; color: var(--primary); word-break: break-all; flex: 1; }
+.copy-btn {
+  background: var(--sage-dim); border: 1px solid var(--sage);
+  color: var(--primary); padding: 5px 12px;
+  border-radius: 6px; cursor: pointer; font-size: .74rem; font-weight: 600;
+  transition: all .2s; white-space: nowrap;
+}
+.copy-btn:hover { background: rgba(143,184,166,.3); }
+
+/* status message */
+.status-msg {
+  padding: 10px 14px; border-radius: var(--radius-xs);
+  font-size: .82rem; margin-top: 14px; display: none;
+}
+.status-msg.ok  { background: rgba(14,42,36,.08); color: var(--primary); border: 1px solid var(--border-mid); }
+.status-msg.err { background: var(--danger-lite); color: var(--danger); border: 1px solid rgba(192,57,43,.2); }
+.status-msg.show { display: block; }
+
+/* ══════════════════════════════════════════════════
+   ROOM SCREEN
+══════════════════════════════════════════════════ */
+#room {
+  flex-direction: column;
+  height: 100vh; overflow: hidden;
+  background: var(--near-black);
+}
+
+/* ── Room Header ── */
+.room-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 58px;
+  background: #0d1a16;
+  border-bottom: 1px solid rgba(143,184,166,.15);
+  flex-shrink: 0; gap: 12px;
+  z-index: 5;
+}
+.rh-brand { display: flex; align-items: center; gap: 10px; }
+.rh-brand img { height: 28px; filter: brightness(2); }
+.rh-sep { width: 1px; height: 20px; background: rgba(255,255,255,.12); }
+.rh-room-name {
+  font-family: var(--font-head);
+  font-weight: 600; font-size: .92rem;
+  color: rgba(255,255,255,.85);
+}
+.rh-meta { display: flex; align-items: center; gap: 8px; }
+.rh-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: .73rem; color: rgba(255,255,255,.55);
+}
+.rh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); animation: pulse-dot 2s infinite; }
+.rh-share-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(143,184,166,.12); border: 1px solid rgba(143,184,166,.25);
+  color: var(--sage); padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; font-family: var(--font-body);
+  font-size: .78rem; font-weight: 600; transition: all .18s;
+}
+.rh-share-btn:hover { background: rgba(143,184,166,.2); }
+.rh-leave {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(192,57,43,.12); border: 1px solid rgba(192,57,43,.25);
+  color: #e74c3c; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; font-family: var(--font-body);
+  font-size: .78rem; font-weight: 600; transition: all .18s;
+}
+.rh-leave:hover { background: rgba(192,57,43,.22); }
+
+/* ── Room Body ── */
+.room-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── VIDEO AREA ── */
+.video-area {
+  flex: 1; background: #0a0f0d;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.video-grid {
+  flex: 1; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px; padding: 12px; overflow-y: auto;
+  align-content: start;
+}
+
+.video-tile {
+  background: #111a16;
+  border-radius: var(--radius);
+  overflow: hidden; position: relative;
+  aspect-ratio: 16/9;
+  border: 1.5px solid rgba(143,184,166,.12);
+  transition: border-color .2s;
+}
+.video-tile.speaking {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 2px rgba(143,184,166,.15);
+}
+.video-tile.screen-tile {
+  grid-column: 1 / -1;
+  border-color: rgba(143,184,166,.3);
+}
+.video-tile video {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.video-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  background: linear-gradient(135deg, #111e18, #0d1510);
+}
+.v-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 1.6rem; font-weight: 700;
+}
+.v-name-tag {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+  border-radius: 6px; padding: 4px 10px;
+  font-size: .74rem; font-weight: 500; color: rgba(255,255,255,.85);
+  display: flex; align-items: center; gap: 6px;
+}
+.screen-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--sage); color: var(--primary);
+  border-radius: 6px; padding: 3px 10px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .3px;
+}
+
+/* ── CONTROLS BAR ── */
+.controls-bar {
+  height: 80px;
+  background: #0d1a16;
+  border-top: 1px solid rgba(143,184,166,.12);
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-shrink: 0; padding: 0 20px;
+}
+.ctrl-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1.5px solid rgba(143,184,166,.2);
+  background: rgba(143,184,166,.07);
+  color: rgba(255,255,255,.75);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .18s; position: relative;
+}
+.ctrl-btn:hover { background: rgba(143,184,166,.15); transform: scale(1.07); }
+.ctrl-btn.on { background: var(--sage); border-color: var(--sage); color: var(--primary); }
+.ctrl-btn.off { background: rgba(192,57,43,.15); border-color: rgba(192,57,43,.35); color: #e74c3c; }
+.ctrl-btn.screen-on { background: var(--primary); border-color: var(--sage); color: var(--sage); }
+
+.ctrl-tooltip {
+  position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+  font-size: .6rem; color: rgba(255,255,255,.4); white-space: nowrap;
+  font-family: var(--font-body); pointer-events: none;
+}
+.ctrl-sep { width: 1px; height: 26px; background: rgba(255,255,255,.1); margin: 0 4px; }
+
+.end-call-btn {
+  width: 58px; height: 46px; border-radius: 23px;
+  background: var(--danger); border: none; color: #fff;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .18s; position: relative;
+}
+.end-call-btn:hover { background: #a93226; transform: scale(1.05); box-shadow: 0 4px 16px rgba(192,57,43,.4); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 310px; flex-shrink: 0;
+  background: #0d1a16;
+  border-right: 1px solid rgba(143,184,166,.12);
+  display: flex; flex-direction: column;
+  overflow: hidden; transition: width .28s ease;
+}
+.sidebar.collapsed { width: 0; }
+
+.sidebar-tabs {
+  display: flex; border-bottom: 1px solid rgba(143,184,166,.12);
+  flex-shrink: 0;
+}
+.stab {
+  flex: 1; padding: 14px 0;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.4);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all .18s; white-space: nowrap;
+}
+.stab.active { color: var(--sage); border-bottom-color: var(--sage); }
+.tab-badge {
+  background: var(--sage); color: var(--primary);
+  border-radius: 10px; font-size: .65rem; font-weight: 700;
+  padding: 1px 6px; display: none;
+}
+.tab-badge.show { display: block; }
+
+.stab-panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.stab-panel.active { display: flex; }
+
+/* participants */
+.participants-list { padding: 10px; overflow-y: auto; flex: 1; }
+.p-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-xs);
+  transition: background .15s;
+}
+.p-row:hover { background: rgba(143,184,166,.07); }
+.p-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; font-weight: 700; flex-shrink: 0;
+  font-family: var(--font-head);
+}
+.p-info { flex: 1; min-width: 0; }
+.p-name { font-size: .82rem; font-weight: 600; color: rgba(255,255,255,.85); }
+.p-role { font-size: .68rem; color: rgba(255,255,255,.35); margin-top: 1px; }
+.p-icons { display: flex; gap: 5px; }
+.p-icons .icon-on  { color: var(--sage); }
+.p-icons .icon-off { color: #e74c3c; opacity: .7; }
+
+/* chat */
+.chat-messages {
+  flex: 1; padding: 12px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-sys {
+  text-align: center; font-size: .72rem;
+  color: rgba(255,255,255,.3); padding: 4px 0;
+}
+.msg { display: flex; gap: 8px; align-items: flex-start; }
+.msg.self { flex-direction: row-reverse; }
+.msg-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 700; flex-shrink: 0;
+  font-family: var(--font-head);
+}
+.msg-body { max-width: 85%; }
+.msg-meta { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.msg.self .msg-meta { flex-direction: row-reverse; }
+.msg-sender { font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.55); }
+.msg-time   { font-size: .65rem; color: rgba(255,255,255,.25); }
+.msg-bubble {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px 10px 10px 3px;
+  padding: 8px 12px; font-size: .84rem; line-height: 1.55;
+  color: rgba(255,255,255,.8); word-break: break-word;
+}
+.msg.self .msg-bubble {
+  background: rgba(143,184,166,.15);
+  border-color: rgba(143,184,166,.25);
+  border-radius: 10px 10px 3px 10px;
+  color: rgba(255,255,255,.9);
+}
+
+.chat-input-area {
+  padding: 10px; border-top: 1px solid rgba(143,184,166,.1); flex-shrink: 0;
+}
+.chat-input-row {
+  display: flex; gap: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1.5px solid rgba(143,184,166,.15);
+  border-radius: 12px; padding: 8px 10px;
+  align-items: flex-end; transition: border-color .18s;
+}
+.chat-input-row:focus-within { border-color: rgba(143,184,166,.4); }
+.chat-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: var(--font-body); font-size: .85rem;
+  color: rgba(255,255,255,.8); resize: none;
+  max-height: 90px; line-height: 1.5;
+}
+.chat-input::placeholder { color: rgba(255,255,255,.3); }
+.send-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--sage); border: none; color: var(--primary);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all .18s;
+}
+.send-btn:hover { background: var(--sage-lite); transform: scale(1.05); }
+
+/* ── TOAST ── */
+.toast-wrap {
+  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+  z-index: 500; display: flex; flex-direction: column; gap: 6px; align-items: center;
+}
+.toast {
+  background: #0d1a16;
+  border: 1px solid rgba(143,184,166,.3);
+  border-radius: 10px; padding: 9px 18px;
+  font-family: var(--font-body); font-size: .8rem; color: rgba(255,255,255,.8);
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  animation: toast-in .28s ease, toast-out .28s ease 2.7s forwards;
+  white-space: nowrap;
+}
+@keyframes toast-in  { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:none} }
+@keyframes toast-out { from{opacity:1} to{opacity:0} }
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+.spinner.show { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(143,184,166,.25); border-radius: 4px; }
+
+/* ── DB STATUS badge ── */
+.db-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .68rem; padding: 3px 10px; border-radius: 10px;
+  font-weight: 600;
+}
+.db-status.connected { background: rgba(143,184,166,.15); color: var(--sage); border: 1px solid rgba(143,184,166,.3); }
+.db-status.offline   { background: rgba(192,57,43,.1); color: #e74c3c; border: 1px solid rgba(192,57,43,.2); }
+
+@media (max-width: 640px) {
+  .hero h1 { font-size: 2rem; }
+  .sidebar { width: 100%; position: absolute; bottom: 0; height: 65%; z-index: 20; transform: translateY(100%); transition: transform .28s; }
+  .sidebar.open { transform: none; }
+  .nav { padding: 0 16px; }
+  .hero { padding: 48px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ PERMISSIONS OVERLAY ═════════════════════════ -->
+<div id="permissions-overlay">
+  <div class="perm-card">
+    <div class="perm-logo">
+      <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo Club" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-family:Host Grotesk,sans-serif;font-size:2rem;font-weight:800;color:#0E2A24\'>E</div>'">
+    </div>
+    <h2>Eco Space يطلب أذوناتك</h2>
+    <p>لتتمكن من المشاركة بالفيديو والصوت، نحتاج وصولاً لأجهزتك. هذه الأذونات اختيارية ويمكنك تخطيها.</p>
+
+    <div class="perm-items">
+      <div class="perm-item">
+        <div class="perm-item-icon"><i data-lucide="video" width="18" height="18"></i></div>
+        <div class="perm-item-text">
+          <strong>الكاميرا</strong>
+          <span>لإظهار صورتك للمشاركين الآخرين</span>
+        </div>
+      </div>
+      <div class="perm-item">
+        <div class="perm-item-icon"><i data-lucide="mic" width="18" height="18"></i></div>
+        <div class="perm-item-text">
+          <strong>الميكروفون</strong>
+          <span>للتحدث والمشاركة في النقاش</span>
+        </div>
+      </div>
+      <div class="perm-item">
+        <div class="perm-item-icon"><i data-lucide="monitor" width="18" height="18"></i></div>
+        <div class="perm-item-text">
+          <strong>مشاركة الشاشة</strong>
+          <span>اختياري — للعروض التقديمية</span>
+        </div>
+        <span class="perm-optional">اختياري</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="requestPermissions()">
+      <i data-lucide="shield-check" width="16" height="16"></i>
+      السماح والمتابعة
+    </button>
+    <button class="btn btn-ghost" style="margin-top:10px;width:100%;" onclick="skipPermissions()">
+      تخطي — الانضمام بدون كاميرا
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LANDING ═════════════════════════════════════ -->
+<section id="landing" class="screen active">
+  <nav class="nav">
+    <div class="nav-brand">
+      <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo" onerror="this.style.display='none'">
+      <div>
+        <div class="nav-brand-text">Eco Space</div>
+        <div class="nav-brand-sub">Econovo Club</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="db-status" id="db-badge">
+        <i data-lucide="loader" width="11" height="11"></i> جارٍ الاتصال…
+      </span>
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        مباشر
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <i data-lucide="zap" width="13" height="13"></i>
+      Econovo Club — مساحتك الرقمية
+    </div>
+    <h1>اجتماعاتكم <span class="sage-word">أفضل</span><br>مع Eco Space</h1>
+    <p class="hero-sub">
+      منصة اجتماعات مخصصة لنادي Econovo. فيديو، صوت، دردشة فورية ومشاركة شاشة — كل ما تحتاجه في مكان واحد.
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="openModal('create')">
+        <i data-lucide="plus-circle" width="17" height="17"></i>
+        إنشاء غرفة
+      </button>
+      <button class="btn btn-ghost" onclick="openModal('join')">
+        <i data-lucide="log-in" width="17" height="17"></i>
+        الانضمام بالرابط
+      </button>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="feat-chip"><i data-lucide="video" width="13" height="13"></i> فيديو HD</div>
+    <div class="feat-chip"><i data-lucide="mic" width="13" height="13"></i> صوت واضح</div>
+    <div class="feat-chip"><i data-lucide="message-circle" width="13" height="13"></i> دردشة فورية</div>
+    <div class="feat-chip"><i data-lucide="monitor-up" width="13" height="13"></i> مشاركة الشاشة</div>
+    <div class="feat-chip"><i data-lucide="link" width="13" height="13"></i> رابط قابل للمشاركة</div>
+    <div class="feat-chip"><i data-lucide="database" width="13" height="13"></i> Supabase Real-time</div>
+  </div>
+</section>
+
+<!-- ══════════ MODAL: CREATE ══════════ -->
+<div id="modal-create" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('create')">
+      <i data-lucide="x" width="14" height="14"></i>
+    </button>
+    <div class="modal-header">
+      <div class="modal-eyebrow">إنشاء مساحة</div>
+      <h2>غرفة جديدة</h2>
+      <p class="sub">سيتم إنشاء رابط فريد يمكنك مشاركته مع فريقك</p>
+    </div>
+
+    <div class="field">
+      <label>اسمك</label>
+      <input id="c-name" type="text" placeholder="أدخل اسمك الكامل">
+    </div>
+    <div class="field">
+      <label>اسم الغرفة</label>
+      <input id="c-room" type="text" placeholder="مثال: اجتماع اللجنة الاقتصادية">
+    </div>
+
+    <button class="btn btn-primary" id="create-btn" onclick="createRoom()">
+      <i data-lucide="plus-circle" width="16" height="16"></i>
+      إنشاء الغرفة
+    </button>
+
+    <div id="create-status" class="status-msg"></div>
+    <div id="room-link-box" style="display:none">
+      <div class="link-preview">
+        <i data-lucide="link" width="14" height="14" style="color:var(--sage);flex-shrink:0"></i>
+        <code id="link-text"></code>
+        <button class="copy-btn" onclick="copyLink()">نسخ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: JOIN ══════════ -->
+<div id="modal-join" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('join')">
+      <i data-lucide="x" width="14" height="14"></i>
+    </button>
+    <div class="modal-header">
+      <div class="modal-eyebrow">انضمام</div>
+      <h2>الدخول برابط</h2>
+      <p class="sub">الصق رابط الغرفة الذي أرسله لك أحد الأعضاء</p>
+    </div>
+
+    <div class="field">
+      <label>اسمك</label>
+      <input id="j-name" type="text" placeholder="اسمك الكامل">
+    </div>
+    <div class="field">
+      <label>رابط أو كود الغرفة</label>
+      <input id="j-link" type="text" placeholder="ecospace.econovo.club/r/xxxxxxxx">
+    </div>
+
+    <button class="btn btn-primary" id="join-btn" onclick="joinRoom()">
+      <i data-lucide="log-in" width="16" height="16"></i>
+      الانضمام الآن
+    </button>
+    <div id="join-status" class="status-msg"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ROOM ═══════════════════════════════════════ -->
+<section id="room" class="screen">
+
+  <header class="room-header">
+    <div class="rh-brand">
+      <img src="https://i.postimg.cc/vBCdy1F4/copilot-image-1784613842249.png" alt="Econovo"
+        onerror="this.style.display='none'">
+      <div class="rh-sep"></div>
+      <span class="rh-room-name" id="rh-name">الغرفة</span>
+    </div>
+    <div class="rh-meta">
+      <div class="rh-pill">
+        <span class="rh-dot"></span>
+        <span id="rh-count">1 مشترك</span>
+      </div>
+      <button class="rh-share-btn" onclick="shareRoomLink()">
+        <i data-lucide="share-2" width="14" height="14"></i>
+        مشاركة
+      </button>
+      <button class="rh-leave" onclick="leaveRoom()">
+        <i data-lucide="phone-off" width="14" height="14"></i>
+        مغادرة
+      </button>
+    </div>
+  </header>
+
+  <div class="room-body">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-tabs">
+        <div class="stab active" onclick="switchTab('chat')" id="tab-chat-btn">
+          <i data-lucide="message-circle" width="14" height="14"></i>
+          الدردشة
+          <span class="tab-badge" id="chat-badge">0</span>
+        </div>
+        <div class="stab" onclick="switchTab('people')" id="tab-people-btn">
+          <i data-lucide="users" width="14" height="14"></i>
+          المشتركون
+        </div>
+      </div>
+
+      <!-- CHAT PANEL -->
+      <div class="stab-panel active" id="panel-chat">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area">
+          <div class="chat-input-row">
+            <textarea class="chat-input" id="chat-input" placeholder="اكتب رسالة…" rows="1"
+              onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendMessage()">
+              <i data-lucide="send" width="14" height="14"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PEOPLE PANEL -->
+      <div class="stab-panel" id="panel-people">
+        <div class="participants-list" id="ppl-list"></div>
+      </div>
+    </aside>
+
+    <!-- VIDEO AREA -->
+    <div class="video-area">
+      <div class="video-grid" id="v-grid"></div>
+
+      <!-- CONTROLS -->
+      <div class="controls-bar">
+        <button class="ctrl-btn on" id="mic-btn" onclick="toggleMic()">
+          <i data-lucide="mic" width="18" height="18" id="mic-icon"></i>
+          <span class="ctrl-tooltip">ميكروفون</span>
+        </button>
+        <button class="ctrl-btn on" id="cam-btn" onclick="toggleCam()">
+          <i data-lucide="video" width="18" height="18" id="cam-icon"></i>
+          <span class="ctrl-tooltip">كاميرا</span>
+        </button>
+        <div class="ctrl-sep"></div>
+        <button class="ctrl-btn" id="screen-btn" onclick="toggleScreen()">
+          <i data-lucide="monitor-up" width="18" height="18"></i>
+          <span class="ctrl-tooltip">الشاشة</span>
+        </button>
+        <div class="ctrl-sep"></div>
+        <button class="ctrl-btn" id="sidebar-btn" onclick="toggleSidebar()">
+          <i data-lucide="message-circle" width="18" height="18"></i>
+          <span class="ctrl-tooltip">الدردشة</span>
+        </button>
+        <button class="ctrl-btn" onclick="togglePeople()">
+          <i data-lucide="users" width="18" height="18"></i>
+          <span class="ctrl-tooltip">المشتركون</span>
+        </button>
+        <div class="ctrl-sep"></div>
+        <button class="end-call-btn" onclick="leaveRoom()">
+          <i data-lucide="phone-off" width="20" height="20"></i>
+          <span class="ctrl-tooltip">إنهاء</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   SUPABASE CLIENT
+═══════════════════════════════════════════════ */
+const SUPA_URL = 'https://fjiyckxmtksmqhyllirt.supabase.co';
+const SUPA_KEY = 'sb_publishable_j2r_CQ1zaGOj2geMRctGeA_VHczbw0l';
+let sb = null;
+let realtimeCh = null;
+
+async function initSupabase() {
+  try {
+    sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+    // verify connection
+    const { error } = await sb.from('rooms').select('id').limit(1);
+    const badge = document.getElementById('db-badge');
+    if (error && error.code !== 'PGRST116') {
+      badge.className = 'db-status offline';
+      badge.innerHTML = '<i data-lucide="wifi-off" width="11" height="11"></i> غير متصل';
+    } else {
+      badge.className = 'db-status connected';
+      badge.innerHTML = '<i data-lucide="check-circle" width="11" height="11"></i> Supabase متصل';
+    }
+    lucide.createIcons();
+  } catch(e) {
+    const badge = document.getElementById('db-badge');
+    badge.className = 'db-status offline';
+    badge.innerHTML = '<i data-lucide="wifi-off" width="11" height="11"></i> غير متصل';
+    lucide.createIcons();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const S = {
+  myName: '',
+  roomName: '',
+  roomCode: '',
+  roomId: null,
+  participantId: null,
+  myUserId: null,
+  micOn: true,
+  camOn: true,
+  screenOn: false,
+  sidebarOpen: true,
+  activeTab: 'chat',
+  localStream: null,
+  screenStream: null,
+  participants: [],
+  messages: [],
+  unread: 0,
+  permGranted: false,
+};
+
+const COLORS = [
+  ['#0E2A24','#8FB8A6'],['#8FB8A6','#0E2A24'],
+  ['#2d6a4f','#fff'],  ['#1b4332','#8FB8A6'],
+  ['#40916c','#fff'],  ['#52b788','#0E2A24'],
+];
+
+function col(i) { return COLORS[i % COLORS.length]; }
+
+/* ═══════════════════════════════════════════════
+   PERMISSIONS
+═══════════════════════════════════════════════ */
+async function requestPermissions() {
+  try {
+    S.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    S.permGranted = true;
+    toast('الكاميرا والميكروفون جاهزان', 'ok');
+  } catch(e) {
+    S.permGranted = false;
+    toast('تعذّر الوصول — يمكنك المتابعة بدونها', 'warn');
+  }
+  document.getElementById('permissions-overlay').classList.add('hidden');
+}
+
+function skipPermissions() {
+  S.permGranted = false;
+  document.getElementById('permissions-overlay').classList.add('hidden');
+  toast('انضممت بدون كاميرا', 'info');
+}
+
+/* ═══════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════ */
+function openModal(id) { document.getElementById('modal-'+id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+
+/* ═══════════════════════════════════════════════
+   CREATE ROOM
+═══════════════════════════════════════════════ */
+function genCode() {
+  return Math.random().toString(36).slice(2,10);
+}
+
+async function createRoom() {
+  const name = document.getElementById('c-name').value.trim();
+  const roomLabel = document.getElementById('c-room').value.trim() || 'غرفة Econovo';
+  if (!name) { showStatus('create','أدخل اسمك أولاً','err'); return; }
+
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner show" style="width:16px;height:16px;border-color:rgba(255,255,255,.3);border-top-color:#fff;display:inline-block"></div> جارٍ الإنشاء…';
+
+  S.myName = name;
+  S.roomName = roomLabel;
+  S.roomCode = genCode();
+
+  let roomDbId = null;
+
+  // Try Supabase insert
+  if (sb) {
+    try {
+      // ensure user row
+      const { data: uData } = await sb.from('users')
+        .insert([{ display_name: name, is_guest: true }])
+        .select('id').single();
+      if (uData) S.myUserId = uData.id;
+
+      const { data: rData, error: rErr } = await sb.from('rooms')
+        .insert([{
+          code: S.roomCode,
+          name: roomLabel,
+          owner_id: S.myUserId || '00000000-0000-0000-0000-000000000000',
+          status: 'active'
+        }])
+        .select('id').single();
+
+      if (!rErr && rData) {
+        roomDbId = rData.id;
+        S.roomId = roomDbId;
+        // add as host
+        const { data: pData } = await sb.from('room_participants')
+          .insert([{ room_id: roomDbId, user_id: S.myUserId, role: 'host' }])
+          .select('id').single();
+        if (pData) S.participantId = pData.id;
+      }
+    } catch(e) { /* offline — continue locally */ }
+  }
+
+  const link = `${location.origin}${location.pathname}?r=${S.roomCode}`;
+  document.getElementById('link-text').textContent = link;
+  document.getElementById('room-link-box').style.display = 'block';
+  showStatus('create','✓ الغرفة جاهزة — شارك الرابط أدناه','ok');
+
+  btn.disabled = false;
+  btn.innerHTML = '<i data-lucide="check" width="16" height="16"></i> جاهز';
+  lucide.createIcons();
+
+  setTimeout(() => {
+    closeModal('create');
+    enterRoom();
+  }, 1600);
+}
+
+/* ═══════════════════════════════════════════════
+   JOIN ROOM
+═══════════════════════════════════════════════ */
+async function joinRoom() {
+  const name = document.getElementById('j-name').value.trim();
+  const link = document.getElementById('j-link').value.trim();
+  if (!name) { showStatus('join','أدخل اسمك','err'); return; }
+  if (!link) { showStatus('join','أدخل رابط الغرفة','err'); return; }
+
+  const btn = document.getElementById('join-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner show" style="width:16px;height:16px;border-color:rgba(255,255,255,.3);border-top-color:#fff;display:inline-block"></div> جارٍ الانضمام…';
+
+  S.myName = name;
+  // extract code
+  const code = link.split('?r=').pop().split('/').pop().split('?').shift().trim();
+  S.roomCode = code;
+
+  if (sb) {
+    try {
+      const { data: room } = await sb.from('rooms')
+        .select('id,name,status').eq('code', code).single();
+      if (room) {
+        S.roomId = room.id;
+        S.roomName = room.name;
+        if (room.status !== 'active') {
+          showStatus('join','هذه الغرفة مُغلقة أو انتهت','err');
+          btn.disabled = false; btn.innerHTML = 'الانضمام الآن';
+          return;
+        }
+        // insert participant
+        const { data: uData } = await sb.from('users')
+          .insert([{ display_name: name, is_guest: true }])
+          .select('id').single();
+        if (uData) S.myUserId = uData.id;
+        const { data: pData } = await sb.from('room_participants')
+          .insert([{ room_id: S.roomId, user_id: S.myUserId, role: 'participant' }])
+          .select('id').single();
+        if (pData) S.participantId = pData.id;
+      } else {
+        S.roomName = 'غرفة مشتركة';
+        showStatus('join','لم يتم إيجاد الغرفة — دخول محلي','ok');
+      }
+    } catch(e) { S.roomName = 'غرفة مشتركة'; }
+  } else {
+    S.roomName = 'غرفة مشتركة';
+  }
+
+  closeModal('join');
+  enterRoom();
+}
+
+/* ═══════════════════════════════════════════════
+   ENTER ROOM
+═══════════════════════════════════════════════ */
+async function enterRoom() {
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('room').classList.add('active');
+  document.getElementById('rh-name').textContent = S.roomName;
+
+  S.participants = [{
+    id: 'me', name: S.myName, isMe: true,
+    micOn: true, camOn: !!S.localStream, colorIdx: 0, role: 'host'
+  }];
+
+  // if permissions not yet granted and no stream
+  if (!S.localStream) {
+    try {
+      S.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      S.participants[0].camOn = true;
+    } catch(e) {
+      S.participants[0].camOn = false;
+    }
+  }
+
+  renderGrid();
+  renderPeople();
+  addSysMsg(`أهلاً ${S.myName}! انضممت إلى "${S.roomName}"`);
+  updateCount();
+
+  // Supabase Realtime subscription
+  if (sb && S.roomId) {
+    realtimeCh = sb.channel(`room:${S.roomId}`)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'messages',
+        filter: `room_id=eq.${S.roomId}`
+      }, payload => {
+        if (payload.new && payload.new.sender_id !== S.myUserId) {
+          S.messages.push({
+            id: payload.new.id,
+            sender: payload.new.sender_name || 'مشترك',
+            text: payload.new.body,
+            time: new Date(payload.new.created_at).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'}),
+            isMe: false, colorIdx: 1
+          });
+          renderMessages();
+          if (S.activeTab !== 'chat') { S.unread++; updateBadge(); }
+        }
+      })
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'room_participants',
+        filter: `room_id=eq.${S.roomId}`
+      }, () => {
+        loadParticipants();
+      })
+      .subscribe();
+  }
+
+  lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════
+   GRID
+═══════════════════════════════════════════════ */
+function renderGrid() {
+  const grid = document.getElementById('v-grid');
+  grid.innerHTML = '';
+
+  // screen share tile
+  if (S.screenOn) {
+    const tile = document.createElement('div');
+    tile.className = 'video-tile screen-tile';
+    const vid = document.createElement('video');
+    vid.autoplay = true; vid.muted = true; vid.playsInline = true;
+    if (S.screenStream) vid.srcObject = S.screenStream;
+    tile.appendChild(vid);
+    const badge = document.createElement('div');
+    badge.className = 'screen-badge';
+    badge.innerHTML = '<i data-lucide="monitor" width="11" height="11" style="display:inline-block;vertical-align:middle;margin-left:4px"></i> مشاركة الشاشة';
+    tile.appendChild(badge);
+    grid.appendChild(tile);
+  }
+
+  S.participants.forEach((p, i) => {
+    const [bg, fg] = col(p.colorIdx ?? i);
+    const tile = document.createElement('div');
+    tile.className = 'video-tile';
+    tile.id = 'tile-' + p.id;
+
+    if (p.isMe && S.localStream && p.camOn) {
+      const vid = document.createElement('video');
+      vid.autoplay = true; vid.muted = true; vid.playsInline = true;
+      vid.srcObject = S.localStream;
+      tile.appendChild(vid);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'video-placeholder';
+      ph.innerHTML = `
+        <div class="v-avatar" style="background:${bg};color:${fg}">${p.name.charAt(0)}</div>
+        <span style="font-size:.74rem;color:rgba(255,255,255,.4)">${p.name}</span>`;
+      tile.appendChild(ph);
+    }
+
+    const tag = document.createElement('div');
+    tag.className = 'v-name-tag';
+    tag.innerHTML = `
+      ${p.name}
+      ${p.isMe ? '<span style="color:var(--sage);font-size:.65rem">(أنت)</span>' : ''}
+      ${!p.micOn ? '<i data-lucide="mic-off" width="11" height="11" style="color:#e74c3c"></i>' : ''}`;
+    tile.appendChild(tag);
+    grid.appendChild(tile);
+  });
+
+  lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════════════ */
+function toggleMic() {
+  S.micOn = !S.micOn;
+  if (S.localStream) S.localStream.getAudioTracks().forEach(t => t.enabled = S.micOn);
+  const btn = document.getElementById('mic-btn');
+  btn.className = 'ctrl-btn ' + (S.micOn ? 'on' : 'off');
+  btn.querySelector('i').setAttribute('data-lucide', S.micOn ? 'mic' : 'mic-off');
+  S.participants[0].micOn = S.micOn;
+  renderPeople(); renderGrid();
+  lucide.createIcons();
+  // update DB
+  if (sb && S.participantId) {
+    sb.from('room_participants').update({ mic_on: S.micOn }).eq('id', S.participantId).then(() => {});
+  }
+  toast(S.micOn ? 'الميكروفون مفعّل' : 'الميكروفون مكتوم', 'info');
+}
+
+function toggleCam() {
+  S.camOn = !S.camOn;
+  if (S.localStream) S.localStream.getVideoTracks().forEach(t => t.enabled = S.camOn);
+  const btn = document.getElementById('cam-btn');
+  btn.className = 'ctrl-btn ' + (S.camOn ? 'on' : 'off');
+  btn.querySelector('i').setAttribute('data-lucide', S.camOn ? 'video' : 'video-off');
+  S.participants[0].camOn = S.camOn;
+  renderGrid();
+  lucide.createIcons();
+  if (sb && S.participantId) {
+    sb.from('room_participants').update({ cam_on: S.camOn }).eq('id', S.participantId).then(() => {});
+  }
+  toast(S.camOn ? 'الكاميرا مفعّلة' : 'الكاميرا معطّلة', 'info');
+}
+
+async function toggleScreen() {
+  if (!S.screenOn) {
+    try {
+      S.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      S.screenOn = true;
+      const btn = document.getElementById('screen-btn');
+      btn.className = 'ctrl-btn screen-on';
+      S.screenStream.getVideoTracks()[0].onended = stopScreen;
+      if (sb && S.roomId) {
+        await sb.from('screen_shares').insert([{ room_id: S.roomId, presenter_id: S.myUserId }]);
+      }
+      renderGrid();
+      toast('مشاركة الشاشة بدأت', 'ok');
+    } catch(e) { toast('تم إلغاء مشاركة الشاشة', 'warn'); }
+  } else { stopScreen(); }
+}
+
+function stopScreen() {
+  if (S.screenStream) S.screenStream.getTracks().forEach(t => t.stop());
+  S.screenStream = null; S.screenOn = false;
+  document.getElementById('screen-btn').className = 'ctrl-btn';
+  renderGrid();
+  toast('تم إيقاف مشاركة الشاشة', 'info');
+}
+
+function toggleSidebar() {
+  S.sidebarOpen = !S.sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !S.sidebarOpen);
+  const btn = document.getElementById('sidebar-btn');
+  btn.className = 'ctrl-btn ' + (S.sidebarOpen ? 'on' : '');
+}
+
+function togglePeople() { switchTab('people'); if (!S.sidebarOpen) toggleSidebar(); }
+
+/* ═══════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════ */
+function switchTab(tab) {
+  S.activeTab = tab;
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab+'-btn').classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  if (tab === 'chat') { S.unread = 0; updateBadge(); }
+}
+
+function updateBadge() {
+  const b = document.getElementById('chat-badge');
+  b.textContent = S.unread;
+  b.className = 'tab-badge' + (S.unread > 0 ? ' show' : '');
+}
+
+/* ═══════════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════════ */
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
+
+async function sendMessage() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+
+  const msg = { id: Date.now(), sender: S.myName, text, time: timeStr, isMe: true, colorIdx: 0 };
+  S.messages.push(msg);
+  inp.value = ''; inp.style.height = 'auto';
+  renderMessages();
+
+  // persist to Supabase
+  if (sb && S.roomId && S.myUserId) {
+    try {
+      await sb.from('messages').insert([{
+        room_id: S.roomId,
+        sender_id: S.myUserId,
+        body: text,
+        message_type: 'text'
+      }]);
+    } catch(e) { /* offline */ }
+  }
+}
+
+function addSysMsg(text) {
+  const el = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'chat-sys'; d.textContent = text;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderMessages() {
+  const el = document.getElementById('chat-messages');
+  // remove .msg elements, keep .chat-sys
+  el.querySelectorAll('.msg').forEach(m => m.remove());
+  S.messages.forEach(m => {
+    const [bg,fg] = col(m.colorIdx ?? 0);
+    const d = document.createElement('div');
+    d.className = 'msg' + (m.isMe ? ' self' : '');
+    d.innerHTML = `
+      <div class="msg-av" style="background:${bg};color:${fg}">${m.sender.charAt(0)}</div>
+      <div class="msg-body">
+        <div class="msg-meta">
+          <span class="msg-sender">${m.sender}</span>
+          <span class="msg-time">${m.time}</span>
+        </div>
+        <div class="msg-bubble">${esc(m.text)}</div>
+      </div>`;
+    el.appendChild(d);
+  });
+  el.scrollTop = el.scrollHeight;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ═══════════════════════════════════════════════
+   PARTICIPANTS
+═══════════════════════════════════════════════ */
+function renderPeople() {
+  const el = document.getElementById('ppl-list');
+  el.innerHTML = '';
+  S.participants.forEach((p, i) => {
+    const [bg,fg] = col(p.colorIdx ?? i);
+    el.innerHTML += `
+      <div class="p-row">
+        <div class="p-av" style="background:${bg};color:${fg}">${p.name.charAt(0)}</div>
+        <div class="p-info">
+          <div class="p-name">${p.name}${p.isMe?' <span style="color:rgba(143,184,166,.6);font-size:.65rem">(أنت)</span>':''}</div>
+          <div class="p-role">${p.role === 'host' ? 'المضيف' : 'مشترك'}</div>
+        </div>
+        <div class="p-icons">
+          <span class="${p.micOn?'icon-on':'icon-off'}">
+            <i data-lucide="${p.micOn?'mic':'mic-off'}" width="13" height="13"></i>
+          </span>
+          <span class="${p.camOn?'icon-on':'icon-off'}">
+            <i data-lucide="${p.camOn?'video':'video-off'}" width="13" height="13"></i>
+          </span>
+        </div>
+      </div>`;
+  });
+  lucide.createIcons();
+}
+
+async function loadParticipants() {
+  if (!sb || !S.roomId) return;
+  const { data } = await sb.from('room_participants')
+    .select('id,role,mic_on,cam_on,users(display_name)')
+    .eq('room_id', S.roomId)
+    .is('left_at', null);
+  if (!data) return;
+
+  S.participants = data.map((r,i) => ({
+    id: r.id,
+    name: r.users?.display_name || 'مشترك',
+    isMe: r.id === S.participantId,
+    micOn: r.mic_on,
+    camOn: r.cam_on,
+    role: r.role,
+    colorIdx: i
+  }));
+  renderPeople(); renderGrid();
+  updateCount();
+}
+
+function updateCount() {
+  document.getElementById('rh-count').textContent = `${S.participants.length} مشترك`;
+}
+
+/* ═══════════════════════════════════════════════
+   SHARE / LEAVE
+═══════════════════════════════════════════════ */
+function shareRoomLink() {
+  const link = `${location.origin}${location.pathname}?r=${S.roomCode}`;
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast('تم نسخ الرابط!','ok'));
+  else toast('الرابط: ?r=' + S.roomCode,'info');
+}
+
+function copyLink() {
+  const t = document.getElementById('link-text').textContent;
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast('تم النسخ','ok'));
+}
+
+async function leaveRoom() {
+  // mark as left in DB
+  if (sb && S.participantId) {
+    await sb.from('room_participants').update({ left_at: new Date().toISOString() }).eq('id', S.participantId).then(() => {});
+  }
+  if (realtimeCh) { sb.removeChannel(realtimeCh); realtimeCh = null; }
+  if (S.localStream) { S.localStream.getTracks().forEach(t=>t.stop()); S.localStream = null; }
+  if (S.screenStream) { S.screenStream.getTracks().forEach(t=>t.stop()); S.screenStream = null; }
+  Object.assign(S, {
+    participants:[], messages:[], micOn:true, camOn:true,
+    screenOn:false, roomId:null, participantId:null,
+    myUserId:null, unread:0
+  });
+  document.getElementById('mic-btn').className = 'ctrl-btn on';
+  document.getElementById('cam-btn').className = 'ctrl-btn on';
+  document.getElementById('screen-btn').className = 'ctrl-btn';
+  document.getElementById('room').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+  toast('غادرت المساحة', 'info');
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS MESSAGES
+═══════════════════════════════════════════════ */
+function showStatus(modal, text, type) {
+  const el = document.getElementById(modal+'-status');
+  el.textContent = text;
+  el.className = 'status-msg ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+function toast(text, type='info') {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderColor = type==='ok'?'rgba(143,184,166,.5)':type==='warn'?'rgba(210,152,0,.4)':type==='err'?'rgba(192,57,43,.4)':'rgba(143,184,166,.2)';
+  el.textContent = text;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ═══════════════════════════════════════════════
+   AUTO JOIN FROM URL
+═══════════════════════════════════════════════ */
+function checkUrlParams() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('r');
+  if (code) {
+    document.getElementById('j-link').value = `?r=${code}`;
+    setTimeout(() => openModal('join'), 600);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  initSupabase();
+  checkUrlParams();
+});
+</script>
+</body>
+</html>
