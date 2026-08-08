@@ -1,0 +1,99 @@
+:root {
+  /* ── Brand & Primary ── */
+  --primary:            #5645d4;
+  --primary-pressed:    #4534b3;
+  --primary-deep:       #3a2a99;
+  --on-primary:         #ffffff;
+  --brand-navy:         #0a1530;
+  --brand-navy-deep:    #070f24;
+  --brand-navy-mid:     #1a2a52;
+  --link-blue:          #0075de;
+  --link-blue-pressed:  #005bab;
+
+  /* ── Brand spectrum ── */
+  --brand-orange:       #dd5b00;
+  --brand-orange-deep:  #793400;
+  --brand-pink:         #ff64c8;
+  --brand-teal:         #2a9d99;
+  --brand-green:        #1aae39;
+  --brand-yellow:       #f5d75e;
+  --brand-purple-300:   #d6b6f6;
+
+  /* ── Card tints ── */
+  --tint-peach:         #ffe8d4;
+  --tint-rose:          #fde0ec;
+  --tint-mint:          #d9f3e1;
+  --tint-lavender:      #e6e0f5;
+  --tint-sky:           #dcecfa;
+  --tint-yellow:        #fef7d6;
+  --tint-yellow-bold:   #f9e79f;
+  --tint-cream:         #f8f5e8;
+
+  /* ── Surface ── */
+  --canvas:             #ffffff;
+  --surface:             #f6f5f4;
+  --surface-soft:        #fafaf9;
+  --hairline:            #e5e3df;
+  --hairline-soft:       #ede9e4;
+  --hairline-strong:     #c8c4be;
+
+  /* ── Text ── */
+  --ink-deep:            #000000;
+  --ink:                 #1a1a1a;
+  --charcoal:            #37352f;
+  --slate:               #5d5b54;
+  --steel:               #787671;
+  --stone:               #a4a097;
+  --muted:               #bbb8b1;
+  --on-dark:             #ffffff;
+  --on-dark-muted:       #a4a097;
+
+  /* ── Semantic ── */
+  --success:             #1aae39;
+  --warning:             #dd5b00;
+  --error:               #e03131;
+
+  /* ── Radius ── */
+  --r-xs:  4px;
+  --r-sm:  6px;
+  --r-md:  8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+  --r-xxl: 20px;
+  --r-full: 9999px;
+
+  /* ── Spacing ── */
+  --sp-xxs: 4px;
+  --sp-xs:  8px;
+  --sp-sm:  12px;
+  --sp-md:  16px;
+  --sp-lg:  20px;
+  --sp-xl:  24px;
+  --sp-xxl: 32px;
+  --sp-xxxl: 40px;
+
+  /* ── Elevation ── */
+  --shadow-1: rgba(15,15,15,.04) 0px 1px 2px 0px;
+  --shadow-2: rgba(15,15,15,.08) 0px 4px 12px 0px;
+  --shadow-3: rgba(15,15,15,.20) 0px 24px 48px -8px;
+  --shadow-4: rgba(15,15,15,.16) 0px 16px 48px -8px;
+
+  --font-head: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', 'Inter', -apple-system, system-ui, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--canvas);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--hairline-strong);border-radius:4px}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@keyframes modal-in{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes toast-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes toast-out{from{opacity:1}to{opacity:0}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
